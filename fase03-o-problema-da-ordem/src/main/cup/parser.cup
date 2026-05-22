@@ -10,7 +10,7 @@ parser code {:
     }
 :}
 
-terminal IF, THEN, ELSE, WHILE;
+terminal IF, THEN, ELSE, WHILE, IFX;
 terminal ASSIGN, LPAREN, RPAREN, LBRACE, RBRACE, SEMI;
 terminal String ID, NUMBER;
 terminal String ADD_OP, MUL_OP, REL_OP;
