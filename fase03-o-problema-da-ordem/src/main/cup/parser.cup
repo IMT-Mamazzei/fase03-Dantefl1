@@ -3,45 +3,25 @@ package br.maua.cic303;
 import java_cup.runtime.*;
 
 parser code {:
-    // Método chamado pelo CUP quando encontra um erro sintático
     public void syntax_error(Symbol cur_token) {
         throw new RuntimeException("Erro Sintático na linha " + cur_token.left + ", coluna " + cur_token.right);
     }
 :}
-
-/* ========================================================================= */
-/* DECLARAÇÃO DOS TOKENS (TERMINAIS)                                         */
-/* O CUP usará isso para gerar o sym.java que o seu Lexer precisa            */
-/* ========================================================================= */
 
 terminal IF, THEN, ELSE, WHILE;
 terminal ASSIGN, LPAREN, RPAREN, LBRACE, RBRACE, SEMI;
 terminal String ID, NUMBER;
 terminal String ADD_OP, MUL_OP, REL_OP;
 
-/* ========================================================================= */
-/* DECLARAÇÃO DOS NÃO-TERMINAIS (VARIÁVEIS DA GRAMÁTICA)                     */
-/* ========================================================================= */
-
 non terminal program, stmt_list, stmt;
 non terminal assign_stmt, if_stmt, while_stmt, block_stmt, null_stmt;
 non terminal expr;
 
-/* ========================================================================= */
-/* PRECEDÊNCIA E ASSOCIATIVIDADE                                             */
-/* ========================================================================= */
-
-/* Resolução do dangling-else: IFX (if sem else) tem menor prioridade que   */
-/* ELSE, forçando o else a se ligar ao if mais interno (comportamento padrão)*/
-/* O operador mais embaixo tem a MAIOR precedência!                         */
-
+precedence nonassoc IFX;
+precedence nonassoc ELSE;
 precedence left REL_OP;
 precedence left ADD_OP;
 precedence left MUL_OP;
-
-/* ========================================================================= */
-/* REGRAS DA GRAMÁTICA                                                       */
-/* ========================================================================= */
 
 start with program;
 
@@ -49,6 +29,7 @@ program ::= stmt_list ;
 
 stmt_list ::= stmt_list stmt
             | stmt
+            | /* vazio */
             ;
 
 stmt ::= assign_stmt
@@ -60,8 +41,7 @@ stmt ::= assign_stmt
 
 assign_stmt ::= ID ASSIGN expr SEMI ;
 
-/* %prec IFX força a redução do if-sem-else antes de consumir um ELSE      */
-if_stmt ::= IF LPAREN expr RPAREN THEN block_stmt
+if_stmt ::= IF LPAREN expr RPAREN THEN block_stmt %prec IFX
           | IF LPAREN expr RPAREN THEN block_stmt ELSE block_stmt
           ;
 
@@ -77,4 +57,4 @@ expr ::= expr ADD_OP expr
        | LPAREN expr RPAREN
        | NUMBER
        | ID
-        ;
+       ;
